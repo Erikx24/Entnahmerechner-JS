@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Entnahmerechner Ruhestand – Julian Seipp Finanzplanung</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Erode:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', sans-serif;
+    color: #CCCCCC;
+    background: #0E1F30;
+    background-image: radial-gradient(circle at 20% 30%, rgba(250,197,140,0.04) 0%, transparent 60%), radial-gradient(circle at 80% 70%, rgba(250,197,140,0.02) 0%, transparent 60%);
+    padding: 32px 20px 60px;
+    min-height: 100vh;
+    -webkit-text-size-adjust: 100%;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+
+  .masthead { margin-bottom: 36px; }
+  .masthead-top {
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    font-size: 10px; letter-spacing: 0.18em; color: rgba(204,204,204,0.5);
+    font-family: 'IBM Plex Mono', monospace; text-transform: uppercase;
+    padding-bottom: 14px; border-bottom: 1px solid rgba(250,197,140,0.2); margin-bottom: 24px;
+  }
+  h1.title {
+    font-family: 'Erode', serif;
+    font-size: clamp(36px, 6.5vw, 78px);
+    font-weight: 600; line-height: 1.0; letter-spacing: -0.02em; margin: 0 0 18px;
+  }
+  h1.title em { font-style: italic; color: #FAC58C; }
+  .subtitle {
+    font-family: 'Erode', serif;
+    font-size: clamp(14px, 1.6vw, 18px);
+    font-weight: 400; font-style: italic; color: #4a4540;
+    line-height: 1.5; margin: 0; max-width: 760px;
+  }
+  .rule { height: 1px; background: rgba(250,197,140,0.2); margin: 28px 0 0; }
+
+  .formula-block {
+    margin: 32px 0;
+    padding: 20px 28px;
+    background: rgba(250,197,140,0.06);
+    border-left: 3px solid #FAC58C; border-radius: 12px;
+    font-family: 'Erode', serif;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #CCCCCC;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    align-items: center;
+  }
+  @media (max-width: 700px) { .formula-block { grid-template-columns: 1fr; gap: 16px; padding: 18px; } }
+  .formula-eq {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(14px, 1.6vw, 17px);
+    text-align: center;
+    color: #FFFFFF;
+  }
+  .formula-eq .num, .formula-eq .den { display: block; padding: 2px 8px; }
+  .formula-eq .num { border-bottom: 1px solid rgba(255,255,255,0.4); }
+  .formula-eq .frac { display: inline-block; vertical-align: middle; text-align: center; }
+  .formula-key { font-size: 13px; }
+  .formula-key strong { font-family: 'IBM Plex Mono', monospace; color: #FAC58C; }
+
+  .grid-two {
+    display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 32px; margin-bottom: 40px;
+  }
+  @media (max-width: 880px) { .grid-two { grid-template-columns: 1fr; gap: 20px; } }
+
+  .panel { padding: 24px 28px; border: 1px solid rgba(250,197,140,0.15); border-radius: 16px; }
+  .panel-light { background: rgba(255,255,255,0.04); }
+  .panel-dark { background: rgba(250,197,140,0.07); color: #FFFFFF; border: 1px solid rgba(250,197,140,0.25); border-radius: 16px; }
+  @media (max-width: 600px) { .panel { padding: 20px 18px; } body { padding: 20px 12px 40px; } }
+
+  .section-label {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; font-weight: 500; letter-spacing: 0.18em;
+    text-transform: uppercase; margin: 0 0 22px;
+    padding-bottom: 10px; border-bottom: 1px solid rgba(250,197,140,0.25); opacity: 0.85;
+  }
+  .sub-section-label {
+    font-family: 'Erode', serif;
+    font-size: 14px; font-weight: 500; font-style: italic;
+    margin: 0 0 14px; opacity: 0.7;
+  }
+
+  .control-group { margin-bottom: 24px; }
+  .label-row {
+    display: flex; justify-content: space-between; align-items: baseline;
+    font-family: 'Inter', sans-serif;
+    font-size: 12px; letter-spacing: 0.05em; text-transform: uppercase; font-weight: 500;
+    gap: 8px;
+  }
+  .label-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 14px; font-weight: 600; letter-spacing: 0;
+    text-transform: none; color: #FAC58C; text-align: right;
+  }
+  .helper {
+    font-family: 'Erode', serif;
+    font-size: 12px; font-style: italic; color: #6b6557; margin-top: 4px;
+  }
+
+  input[type="text"], input[type="number"] {
+    width: 100%;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(250,197,140,0.2);
+    color: #FFFFFF;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: 0;
+    outline: none;
+    transition: all 0.15s;
+    -moz-appearance: textfield;
+    border-radius: 10px;
+  }
+  input[type="text"]::-webkit-outer-spin-button,
+  input[type="text"]::-webkit-inner-spin-button {
+    -webkit-appearance: none; margin: 0;
+  }
+  input[type="text"]:focus, input[type="number"]:focus {
+    background: rgba(255,255,255,0.1);
+    border-color: #FAC58C;
+    box-shadow: 0 0 0 3px rgba(250,197,140,0.15);
+  }
+  input[type="text"].invalid {
+    border-color: #e05555;
+    box-shadow: 0 0 0 3px rgba(224,85,85,0.2);
+  }
+
+  input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 2px; background: rgba(250,197,140,0.25);
+    outline: none; margin: 12px 0; cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 18px; height: 18px; background: #FAC58C;
+    cursor: pointer; border-radius: 9999px;
+    border: 2px solid #0E1F30; box-shadow: 0 0 0 1px rgba(250,197,140,0.4);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 18px; height: 18px; background: #FAC58C;
+    cursor: pointer; border-radius: 9999px;
+    border: 2px solid #0E1F30; box-shadow: 0 0 0 1px rgba(250,197,140,0.4);
+  }
+
+  .btn-row { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+
+  .toggle-btn {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 8px 18px; background: transparent;
+    border: 1px solid rgba(250,197,140,0.3); color: #CCCCCC;
+    cursor: pointer; font-weight: 500; transition: all 0.15s;
+  }
+  .toggle-btn:hover { background: rgba(250,197,140,0.1); color: #FAC58C; border-color: #FAC58C; }
+  .toggle-btn.active { background: #FAC58C; color: #0E1F30; border-color: #FAC58C; font-weight: 600; }
+
+  .quick-btn {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px; padding: 7px 14px;
+    background: transparent; border: 1px solid rgba(250,197,140,0.2);
+    color: #CCCCCC; cursor: pointer; transition: all 0.15s;
+    border-radius: 9999px;
+  }
+  .quick-btn:hover { border-color: #FAC58C; color: #FAC58C; }
+  .quick-btn.active { background: #FAC58C; color: #0E1F30; border-color: #FAC58C; font-weight: 600; }
+
+  .big-stat { margin-bottom: 24px; }
+  .big-stat-label {
+    font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(204,204,204,0.5); margin-bottom: 8px;
+  }
+  .big-stat-value {
+    font-family: 'Erode', serif;
+    font-size: clamp(30px, 4.5vw, 52px);
+    font-weight: 500; line-height: 1; letter-spacing: -0.02em; color: #FFFFFF;
+  }
+  .big-stat-value.ruined { color: #e07070; }
+  .big-stat-sub {
+    font-family: 'Erode', serif; font-style: italic;
+    font-size: 13px; color: #a89b80; margin-top: 8px;
+  }
+  .stat-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .stat-cell { padding-top: 12px; border-top: 1px solid rgba(250,197,140,0.15); }
+  .stat-label {
+    font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(204,204,204,0.5); margin-bottom: 6px;
+  }
+  .stat-value {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: clamp(18px, 2.4vw, 22px); font-weight: 500; color: #FFFFFF;
+  }
+  .stat-value.green { color: #FAC58C; }
+  .stat-value.red { color: #e07070; }
+  .stat-sub {
+    font-family: 'Erode', serif; font-style: italic;
+    font-size: 11px; color: #a89b80; margin-top: 2px;
+  }
+  .divider { height: 1px; background: rgba(250,197,140,0.15); margin: 20px 0; }
+
+  .chart-section {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(250,197,140,0.12);
+    padding: 24px 28px; margin-bottom: 40px; border-radius: 16px;
+  }
+  @media (max-width: 600px) { .chart-section { padding: 18px 14px; } }
+  .chart-header {
+    display: flex; justify-content: space-between; align-items: center;
+    flex-wrap: wrap; gap: 12px; margin-bottom: 8px;
+  }
+  .chart-wrap { margin: 16px -8px 0; overflow-x: auto; }
+  .chart-svg-container { width: 100%; min-width: 320px; position: relative; }
+  .chart-caption {
+    font-family: 'Erode', serif; font-size: 13px; font-style: italic;
+    color: #4a4540; text-align: center; margin-top: 12px; line-height: 1.5;
+  }
+
+  svg.chart { display: block; width: 100%; height: auto; user-select: none; }
+  svg.chart text { font-family: 'IBM Plex Mono', monospace; font-size: 11px; fill: rgba(204,204,204,0.5); }
+  svg.chart .axis-line { stroke: rgba(250,197,140,0.2); stroke-width: 1; }
+  svg.chart .grid-line { stroke: rgba(255,255,255,0.07); stroke-width: 1; }
+  svg.chart .zero-line { stroke: rgba(224,85,85,0.5); stroke-width: 1; }
+  svg.chart .ref-line { stroke: rgba(204,204,204,0.3); stroke-width: 1; stroke-dasharray: 3,3; }
+  svg.chart .target-line { stroke: #FAC58C; stroke-width: 1.2; stroke-dasharray: 5,4; }
+  svg.chart .ref-label { font-size: 10px; fill: #6b6557; font-family: 'Inter'; }
+
+  .tooltip {
+    position: absolute; background: #112236; border: 1px solid rgba(250,197,140,0.25);
+    padding: 10px 14px; pointer-events: none;
+    box-shadow: 4px 4px 0 rgba(42,42,38,0.1);
+    z-index: 10; min-width: 220px;
+    font-family: 'Inter', sans-serif; transition: opacity 0.1s;
+  }
+  .tooltip-header {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px; letter-spacing: 0.05em; color: rgba(204,204,204,0.6); margin-bottom: 6px;
+  }
+  .tooltip-row {
+    display: flex; justify-content: space-between; gap: 18px;
+    font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+  }
+  .tooltip-row.big { font-size: 13px; }
+  .tooltip-divider {
+    font-family: 'Inter', sans-serif;
+    font-size: 9px; letter-spacing: 0.15em;
+    margin: 8px 0 4px; text-transform: uppercase;
+  }
+  .tooltip-divider.top { color: #FAC58C; margin-top: 0; }
+  .tooltip-divider.bottom { color: #e07070; }
+
+  .table-section {
+    background: rgba(255,255,255,0.03); border: 1px solid rgba(250,197,140,0.12);
+    padding: 24px 28px; margin-bottom: 40px; border-radius: 16px;
+  }
+  @media (max-width: 600px) { .table-section { padding: 18px 14px; } }
+  .table-wrap { overflow-x: auto; max-height: 420px; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  table.ledger {
+    width: 100%; min-width: 600px; border-collapse: collapse;
+    font-family: 'IBM Plex Mono', monospace; font-size: 13px;
+  }
+  table.ledger thead tr { border-bottom: 1px solid rgba(250,197,140,0.2); }
+  table.ledger th {
+    text-align: left; padding: 10px 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 10px; font-weight: 500; letter-spacing: 0.15em;
+    text-transform: uppercase; color: rgba(204,204,204,0.5);
+    position: sticky; top: 0; background: #0E1F30; z-index: 1;
+  }
+  table.ledger th.r, table.ledger td.r { text-align: right; }
+  table.ledger tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+  table.ledger tbody tr.alt { background: rgba(255,255,255,0.03); }
+  table.ledger td { padding: 8px 12px; }
+  td.muted { color: rgba(204,204,204,0.5); }
+  td.bold { font-weight: 500; }
+  td.red { color: #e07070; }
+  td.green { color: #FAC58C; }
+
+  .footer { margin-top: 40px; }
+  .footer p {
+    font-family: 'Erode', serif; font-size: 13px; line-height: 1.65;
+    color: #4a4540; margin: 20px 0 0; max-width: 820px;
+  }
+  .footer p.italic { font-style: italic; margin-top: 12px; }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .stagger > * { animation: fadeIn 0.5s ease-out backwards; }
+  .stagger > *:nth-child(1) { animation-delay: 0s; }
+  .stagger > *:nth-child(2) { animation-delay: 0.08s; }
+</style>
+</head>
+<body>
+<div class="container">
+  <header class="masthead">
+    <div class="masthead-top">
+      <span>BAND II — DYNAMISCHE ENTNAHME</span>
+      <span>HISTORISCHE DATEN: 1970 – 2025</span>
+    </div>
+    <h1 class="title">Dynamischer<br><em>Entnahmerechner</em><br>für den Ruhestand</h1>
+    <p class="subtitle">
+      Eine Simulation, in der die jährliche Entnahme aus dem aktuellen
+      Portfoliowert, der verbleibenden Laufzeit, einer erwarteten Rendite
+      und einem Zielendwert neu berechnet wird — die Annuitäten- bzw. PMT-Methode.
+    </p>
+
+    <div class="formula-block">
+      <div class="formula-eq">
+        <span style="font-style: italic;">PMT</span> &nbsp;=&nbsp;
+        <span class="frac">
+          <span class="num">(PV · (1+r)<sup>n</sup> − FV) · r</span>
+          <span class="den">(1+r)<sup>n</sup> − 1</span>
+        </span>
+      </div>
+      <div class="formula-key">
+        <strong>PV</strong> aktueller Portfoliowert &nbsp;·&nbsp;
+        <strong>FV</strong> Zielendwert &nbsp;·&nbsp;
+        <strong>r</strong> erwartete Rendite pro Periode &nbsp;·&nbsp;
+        <strong>n</strong> verbleibende Perioden &nbsp;·&nbsp;
+        <strong>PMT</strong> Entnahme dieser Periode
+      </div>
+    </div>
+    <div class="rule"></div>
+  </header>
+
+  <div class="grid-two stagger">
+    <section class="panel panel-light">
+      <h2 class="section-label">I. Parameter</h2>
+
+      <div class="control-group">
+        <div class="label-row">
+          <span>Anfangskapital (PV<sub>0</sub>)</span>
+          <span class="label-value" id="cap-display">1.000.000 €</span>
+        </div>
+        <div class="btn-row" id="cap-quick"></div>
+        <input type="range" id="cap-range" min="50000" max="10000000" step="50000" value="1000000">
+      </div>
+
+      <div class="control-group">
+        <div class="label-row">
+          <span>Erwartete Rendite (r)</span>
+          <span class="label-value" id="er-display">7,0 %</span>
+        </div>
+        <input type="range" id="er-range" min="3" max="10" step="0.1" value="7">
+        <div class="helper">Wird nur in der PMT-Formel verwendet — die tatsächlichen Jahresrenditen stammen aus der MSCI-World-Historie.</div>
+      </div>
+
+      <div class="control-group">
+        <div class="label-row">
+          <span>Zielendwert (FV)</span>
+          <span class="label-value" id="fv-display">0 €</span>
+        </div>
+        <input type="text" inputmode="numeric" id="fv-input" value="0" autocomplete="off">
+        <div class="btn-row" id="fv-quick" style="margin-top: 10px;"></div>
+        <div class="helper">Geben Sie einen Euro-Betrag ein, der am Ende übrig bleiben soll, oder verwenden Sie eine der Voreinstellungen (× Anfangskapital).</div>
+      </div>
+
+      <div class="control-group">
+        <div class="label-row">
+          <span>Startjahr</span>
+          <span class="label-value" id="sy-display">1970 – 2000</span>
+        </div>
+        <input type="range" id="sy-range" min="1970" max="1996" step="1" value="1970">
+        <div class="helper">Verschieben Sie den Regler, um den Ruhestand in einem anderen historischen Zeitfenster zu beginnen.</div>
+      </div>
+
+      <div class="control-group">
+        <div class="label-row">
+          <span>Anlagehorizont (n, Jahre)</span>
+          <span class="label-value" id="yr-display">30 Jahre</span>
+        </div>
+        <div class="btn-row" id="yr-quick"></div>
+      </div>
+    </section>
+
+    <section class="panel panel-dark">
+      <h2 class="section-label">II. Ergebnis — Jahrgang <span id="cohort-label">1970</span></h2>
+
+      <div class="big-stat">
+        <div class="big-stat-label">Endwert im Jahr <span id="end-year">2000</span></div>
+        <div class="big-stat-value" id="terminal-value">0 €</div>
+        <div class="big-stat-sub" id="terminal-sub"></div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-cell">
+          <div class="stat-label">Gesamtentnahmen</div>
+          <div class="stat-value" id="total-withdrawn">0 €</div>
+          <div class="stat-sub" id="total-sub">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Ø Entnahmequote</div>
+          <div class="stat-value" id="avg-wd-rate">—</div>
+          <div class="stat-sub">vom Restbestand</div>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-cell">
+          <div class="stat-label">Niedrigste Entnahme</div>
+          <div class="stat-value" id="min-wd">—</div>
+          <div class="stat-sub" id="min-wd-yr">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Höchste Entnahme</div>
+          <div class="stat-value" id="max-wd">—</div>
+          <div class="stat-sub" id="max-wd-yr">—</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <h3 class="sub-section-label">Über alle <span id="window-count">27</span> historischen <span id="horizon-label">30</span>-Jahres-Fenster</h3>
+
+      <div class="stat-row">
+        <div class="stat-cell">
+          <div class="stat-label">Median-Endwert</div>
+          <div class="stat-value" id="median-final">—</div>
+          <div class="stat-sub" id="median-sub">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Ziel erreicht</div>
+          <div class="stat-value" id="hit-target">—</div>
+          <div class="stat-sub" id="hit-sub">≥ FV-Ziel</div>
+        </div>
+      </div>
+
+      <div class="stat-row">
+        <div class="stat-cell">
+          <div class="stat-label">Schlechtester Jahrgang</div>
+          <div class="stat-value" id="worst-year">—</div>
+          <div class="stat-sub" id="worst-sub">—</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Bester Jahrgang</div>
+          <div class="stat-value" id="best-year">—</div>
+          <div class="stat-sub" id="best-sub">—</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <section class="chart-section">
+    <div class="chart-header">
+      <h2 class="section-label" style="margin-bottom: 0; padding-bottom: 0; border: none;">III. Vermögensverlauf</h2>
+      <div class="btn-row" style="margin-top: 0;">
+        <button class="toggle-btn active" id="mode-single">Einzelner Jahrgang</button>
+        <button class="toggle-btn" id="mode-compare">Alle Jahrgänge</button>
+        <button class="toggle-btn" id="mode-wd">Entnahmen</button>
+      </div>
+    </div>
+    <div class="chart-wrap">
+      <div class="chart-svg-container" id="chart-container">
+        <svg class="chart" id="chart" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid meet"></svg>
+        <div class="tooltip" id="tooltip" style="opacity: 0; left: 0; top: 0;"></div>
+      </div>
+    </div>
+    <div class="chart-caption" id="chart-caption"></div>
+  </section>
+
+  <section class="table-section" id="table-section">
+    <h2 class="section-label">IV. Jahr für Jahr</h2>
+    <div class="table-wrap">
+      <table class="ledger">
+        <thead>
+          <tr>
+            <th>Jahr</th>
+            <th>Nr.</th>
+            <th class="r">PV (Beginn)</th>
+            <th class="r">PMT (Entnahme)</th>
+            <th class="r">Quote</th>
+            <th class="r">MSCI-Rendite</th>
+            <th class="r">Bestand (Ende)</th>
+          </tr>
+        </thead>
+        <tbody id="ledger-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div class="rule"></div>
+    <p>
+      <strong>Methodik.</strong> Zu Beginn jedes Jahres wird die Entnahme <em>PMT</em>
+      neu aus dem aktuellen Portfoliobestand (PV), den verbleibenden Jahren (n),
+      einer erwarteten Rendite (r) und einem Zielendwert (FV) berechnet. Der
+      Euro-Betrag der Entnahme schwankt daher von Jahr zu Jahr — in guten Marktjahren
+      höher, in schlechten niedriger. Die tatsächliche Wertentwicklung des Portfolios
+      basiert auf den jährlichen Netto-Gesamtrenditen des MSCI World Index in
+      DM (1970–1998) bzw. EUR (ab 1999), inklusive Wechselkurseffekten aus Sicht
+      eines Anlegers im Euro-Raum. Daten 1970–2012 aus dem Renditedreieck von
+      Scalable Capital (Datenquelle: MSCI Inc.); 2013–2025 aus dem offiziellen
+      MSCI World Net (EUR) Factsheet. Nur die Formel selbst nutzt die
+      <em>erwartete</em> Rendite r. Dieser dynamische Ansatz bildet die Grundlage
+      von VPW-Strategien (Variable Percentage Withdrawal) und vermeidet sowohl die
+      Überentnahme bei festen Realeinkommen in Bullenmärkten als auch die
+      Unterentnahme in Bärenmärkten — um den Preis eines schwankenderen Einkommens.
+    </p>
+    <p class="italic">
+      Vergangene Wertentwicklung ist kein verlässlicher Indikator für künftige Erträge.
+      Dieses Werkzeug dient der Veranschaulichung, nicht der Anlageberatung.
+    </p>
+  </footer>
+</div>
+
+<script>
+// MSCI World Net Total Return — Renditen in DM (1970–1998) bzw. EUR (1999–heute).
+// Quellen: Scalable Capital Renditedreieck (Daten von MSCI Inc., Stand 31.12.2024)
+// für 1970–2012; offizielles MSCI World Net (EUR) Factsheet für 2013–2025.
+// Methodik: Diese Reihe enthält die Wechselkurseffekte (USD→DM/EUR) aus Sicht
+// eines Anlegers im Euro-Raum.
+const MSCI_RETURNS = {
+  1970: 0.0420, 1971: 0.0610, 1972: 0.2000, 1973: -0.2840, 1974: -0.3360,
+  1975: 0.4450, 1976: 0.0220, 1977: 0.1030, 1978: 0.0120, 1979: 0.0510,
+  1980: 0.4220, 1981: 0.0960, 1982: 0.1560, 1983: 0.3970, 1984: -0.2100,
+  1985: 0.0990, 1986: 0.1190, 1987: 0.0530, 1988: 0.3880, 1989: 0.1120,
+  1990: -0.2700, 1991: 0.2000, 1992: -0.0090, 1993: 0.3100, 1994: 0.0570,
+  1995: 0.1170, 1996: 0.2310, 1997: 0.3340, 1998: 0.1610, 1999: 0.4570,
+  2000: -0.0730, 2001: -0.1180, 2002: -0.3210, 2003: 0.1090, 2004: 0.0660,
+  2005: 0.2520, 2006: 0.0780, 2007: 0.0140, 2008: -0.3810, 2009: 0.2680,
+  2010: 0.1960, 2011: -0.0250, 2012: 0.1380, 2013: 0.2120, 2014: 0.1950,
+  2015: 0.1042, 2016: 0.1073, 2017: 0.0751, 2018: -0.0411, 2019: 0.3002,
+  2020: 0.0633, 2021: 0.3107, 2022: -0.1278, 2023: 0.1960, 2024: 0.2660,
+  2025: 0.0677
+};
+const FIRST_YEAR = 1970;
+const LAST_YEAR = 2025;
+
+const state = {
+  initialCapital: 1000000,
+  expectedReturn: 7,
+  fvAmount: 0,
+  startYear: 1970,
+  years: 30,
+  compareMode: false,
+  showWithdrawals: false,
+};
+
+// ============================================================================
+// German number formatting
+// ============================================================================
+// 1.000.000 € (period as thousands separator, € sign at the end with non-breaking space)
+const NBSP = '\u00A0';
+
+const fmtMoney = (n) => {
+  const sign = n < 0 ? '−' : '';
+  const abs = Math.abs(n);
+  if (abs >= 1_000_000) return sign + (abs / 1_000_000).toFixed(2).replace('.', ',') + NBSP + 'Mio.' + NBSP + '€';
+  if (abs >= 1_000) return sign + (abs / 1_000).toFixed(0) + NBSP + 'Tsd.' + NBSP + '€';
+  if (abs === 0) return '0' + NBSP + '€';
+  return sign + abs.toFixed(0) + NBSP + '€';
+};
+
+const fmtFull = (n) => {
+  const rounded = Math.round(n);
+  return rounded.toLocaleString('de-DE') + NBSP + '€';
+};
+
+const fmtPct = (n) => (n * 100).toFixed(2).replace('.', ',') + NBSP + '%';
+
+// Format/parse for free-text input — comma-grouped (German style), no € sign
+const formatNumberInput = (n) => Math.round(n).toLocaleString('de-DE');
+const parseNumberInput = (s) => {
+  if (typeof s !== 'string') s = String(s);
+  // Strip everything except digits, comma, period, and minus
+  // German users may type 1.000.000 (period as thousand sep) or just 1000000
+  // We strip periods (thousand seps) and treat comma as decimal
+  let cleaned = s.replace(/[^0-9.,\-]/g, '');
+  if (cleaned === '' || cleaned === '-' || cleaned === ',' || cleaned === '.') return null;
+  // Remove periods (thousand separators), then replace comma with period for parseFloat
+  cleaned = cleaned.replace(/\./g, '').replace(',', '.');
+  const n = Number(cleaned);
+  if (!isFinite(n) || n < 0) return null;
+  return n;
+};
+
+// ============================================================================
+// PMT
+// ============================================================================
+function pmt(pv, fv, r, n) {
+  if (n <= 0) return 0;
+  if (Math.abs(r) < 1e-9) return (pv - fv) / n;
+  const growth = Math.pow(1 + r, n);
+  return ((pv * growth - fv) * r) / (growth - 1);
+}
+
+// ============================================================================
+// Simulation
+// ============================================================================
+function simulate(startYear, years, initialCapital, expectedReturnPct, fvTarget) {
+  const r = expectedReturnPct / 100;
+  const path = [];
+  let balance = initialCapital;
+  let totalWithdrawn = 0;
+  let minWd = Infinity, minWdYear = startYear;
+  let maxWd = -Infinity, maxWdYear = startYear;
+  const wdRates = [];
+
+  path.push({ year: startYear, age: 0, pvStart: balance, withdrawal: 0, wdRate: 0, return: 0, balance });
+
+  for (let i = 0; i < years; i++) {
+    const yr = startYear + i;
+    const histRet = MSCI_RETURNS[yr];
+    if (histRet === undefined) break;
+    const remainingYears = years - i;
+    const pvStart = balance;
+    let wd = pmt(pvStart, fvTarget, r, remainingYears);
+    if (wd < 0) wd = 0;
+    wd = Math.min(wd, pvStart);
+    const wdRate = pvStart > 0 ? wd / pvStart : 0;
+    wdRates.push(wdRate);
+    if (wd < minWd) { minWd = wd; minWdYear = yr; }
+    if (wd > maxWd) { maxWd = wd; maxWdYear = yr; }
+    balance = pvStart - wd;
+    totalWithdrawn += wd;
+    if (balance > 0) balance = balance * (1 + histRet);
+    path.push({
+      year: yr + 1, age: i + 1,
+      pvStart, withdrawal: wd, wdRate, return: histRet,
+      balance: Math.max(0, balance),
+    });
+  }
+  const avgWdRate = wdRates.length ? wdRates.reduce((a,b) => a+b, 0) / wdRates.length : 0;
+  return {
+    path, finalBalance: balance, totalWithdrawn,
+    minWd: minWd === Infinity ? 0 : minWd, minWdYear,
+    maxWd: maxWd === -Infinity ? 0 : maxWd, maxWdYear,
+    avgWdRate, hitTarget: balance >= fvTarget,
+  };
+}
+
+function getAllWindows() {
+  const fvTarget = state.fvAmount;
+  const minStart = FIRST_YEAR;
+  const maxStart = LAST_YEAR - state.years + 1;
+  const results = [];
+  for (let y = minStart; y <= maxStart; y++) {
+    const s = simulate(y, state.years, state.initialCapital, state.expectedReturn, fvTarget);
+    results.push({
+      startYear: y, endYear: y + state.years,
+      finalBalance: s.finalBalance, totalWithdrawn: s.totalWithdrawn,
+      hitTarget: s.hitTarget, path: s.path,
+    });
+  }
+  return results;
+}
+
+// ============================================================================
+// Quick buttons
+// ============================================================================
+function renderQuickButtons() {
+  const capContainer = document.getElementById('cap-quick');
+  capContainer.innerHTML = '';
+  [250000, 500000, 1000000, 2000000, 5000000].forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'quick-btn' + (state.initialCapital === v ? ' active' : '');
+    b.textContent = fmtMoney(v);
+    b.onclick = () => { state.initialCapital = v; document.getElementById('cap-range').value = v; render(); };
+    capContainer.appendChild(b);
+  });
+
+  const fvContainer = document.getElementById('fv-quick');
+  fvContainer.innerHTML = '';
+  [0, 1, 2, 3].forEach(v => {
+    const dollarAmount = v * state.initialCapital;
+    const b = document.createElement('button');
+    b.className = 'quick-btn' + (state.fvAmount === dollarAmount ? ' active' : '');
+    b.textContent = v + '× Start';
+    b.onclick = () => {
+      state.fvAmount = dollarAmount;
+      document.getElementById('fv-input').value = formatNumberInput(dollarAmount);
+      document.getElementById('fv-input').classList.remove('invalid');
+      render();
+    };
+    fvContainer.appendChild(b);
+  });
+
+  const yrContainer = document.getElementById('yr-quick');
+  yrContainer.innerHTML = '';
+  [20, 25, 30, 35, 40].forEach(v => {
+    const b = document.createElement('button');
+    b.className = 'quick-btn' + (state.years === v ? ' active' : '');
+    b.textContent = v;
+    b.onclick = () => {
+      state.years = v;
+      const maxStart = LAST_YEAR - v + 1;
+      if (state.startYear > maxStart) state.startYear = maxStart;
+      const syRange = document.getElementById('sy-range');
+      syRange.max = maxStart;
+      syRange.value = state.startYear;
+      render();
+    };
+    yrContainer.appendChild(b);
+  });
+}
+
+// ============================================================================
+// Chart
+// ============================================================================
+const CHART_W = 800, CHART_H = 420;
+const MARGIN = { top: 20, right: 30, left: 80, bottom: 50 };
+const PLOT_W = CHART_W - MARGIN.left - MARGIN.right;
+const PLOT_H = CHART_H - MARGIN.top - MARGIN.bottom;
+
+function renderChart(sim, allWindows, worstWindow, bestWindow) {
+  const svg = document.getElementById('chart');
+  svg.innerHTML = '';
+  const ns = 'http://www.w3.org/2000/svg';
+  const make = (tag, attrs) => {
+    const el = document.createElementNS(ns, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    return el;
+  };
+
+  let xValues, series, yMax, yMin;
+  const valueKey = state.showWithdrawals ? 'withdrawal' : 'balance';
+
+  if (state.compareMode) {
+    const maxLen = Math.max(...allWindows.map(w => w.path.length));
+    xValues = Array.from({length: maxLen}, (_, i) => i);
+    series = allWindows.map(w => ({
+      key: String(w.startYear),
+      values: xValues.map(i => w.path[i] ? w.path[i][valueKey] : null),
+      isSelected: w.startYear === state.startYear,
+      isWorst: w.startYear === worstWindow.startYear,
+      isBest: w.startYear === bestWindow.startYear,
+      hitTarget: w.hitTarget,
+    }));
+    const all = series.flatMap(s => s.values).filter(v => v !== null && v !== undefined);
+    yMax = state.showWithdrawals ? Math.max(...all) : Math.max(state.initialCapital, ...all);
+    yMin = 0;
+  } else {
+    xValues = sim.path.map(p => p.year);
+    series = [{
+      key: state.showWithdrawals ? 'Entnahme' : 'Bestand',
+      values: sim.path.map(p => p[valueKey]),
+      isSelected: true,
+      color: state.showWithdrawals ? '#e07070' : '#FAC58C',
+    }];
+    const all = series[0].values;
+    yMax = state.showWithdrawals ? Math.max(1, ...all) * 1.1 : Math.max(state.initialCapital * 1.1, ...all);
+    yMin = 0;
+  }
+  yMax = yMax * 1.05;
+
+  const xScale = (i) => {
+    if (xValues.length === 1) return MARGIN.left + PLOT_W / 2;
+    return MARGIN.left + (i / (xValues.length - 1)) * PLOT_W;
+  };
+  const yScale = (v) => MARGIN.top + PLOT_H - ((v - yMin) / (yMax - yMin)) * PLOT_H;
+
+  const yTicks = niceTicks(yMin, yMax, 5);
+  yTicks.forEach(t => {
+    svg.appendChild(make('line', {
+      class: 'grid-line', x1: MARGIN.left, x2: MARGIN.left + PLOT_W,
+      y1: yScale(t), y2: yScale(t)
+    }));
+    const lbl = make('text', { x: MARGIN.left - 8, y: yScale(t) + 4, 'text-anchor': 'end' });
+    lbl.textContent = fmtMoney(t);
+    svg.appendChild(lbl);
+  });
+
+  svg.appendChild(make('line', {
+    class: 'axis-line', x1: MARGIN.left, x2: MARGIN.left, y1: MARGIN.top, y2: MARGIN.top + PLOT_H
+  }));
+  svg.appendChild(make('line', {
+    class: 'axis-line', x1: MARGIN.left, x2: MARGIN.left + PLOT_W,
+    y1: MARGIN.top + PLOT_H, y2: MARGIN.top + PLOT_H
+  }));
+
+  const xTickStep = Math.max(1, Math.ceil(xValues.length / 8));
+  xValues.forEach((xv, i) => {
+    if (i % xTickStep !== 0 && i !== xValues.length - 1) return;
+    const lbl = make('text', { x: xScale(i), y: MARGIN.top + PLOT_H + 18, 'text-anchor': 'middle' });
+    lbl.textContent = xv;
+    svg.appendChild(lbl);
+  });
+
+  if (!state.compareMode && !state.showWithdrawals) {
+    if (state.initialCapital >= yMin && state.initialCapital <= yMax) {
+      svg.appendChild(make('line', {
+        class: 'ref-line', x1: MARGIN.left, x2: MARGIN.left + PLOT_W,
+        y1: yScale(state.initialCapital), y2: yScale(state.initialCapital)
+      }));
+      const lbl = make('text', {
+        class: 'ref-label', x: MARGIN.left + PLOT_W - 4, y: yScale(state.initialCapital) - 5, 'text-anchor': 'end'
+      });
+      lbl.textContent = 'Anfangskapital (1×)';
+      svg.appendChild(lbl);
+    }
+    const fvTarget = state.fvAmount;
+    if (fvTarget > 0 && fvTarget <= yMax) {
+      svg.appendChild(make('line', {
+        class: 'target-line', x1: MARGIN.left, x2: MARGIN.left + PLOT_W,
+        y1: yScale(fvTarget), y2: yScale(fvTarget)
+      }));
+      const lbl = make('text', {
+        x: MARGIN.left + PLOT_W - 4, y: yScale(fvTarget) - 5, 'text-anchor': 'end',
+        style: 'fill: #FAC58C; font-size: 10px; font-family: Inter;'
+      });
+      lbl.textContent = 'FV-Ziel (' + fmtMoney(fvTarget) + ')';
+      svg.appendChild(lbl);
+    }
+  }
+  if (state.compareMode && !state.showWithdrawals) {
+    const fvTarget = state.fvAmount;
+    if (fvTarget > 0 && fvTarget <= yMax) {
+      svg.appendChild(make('line', {
+        class: 'target-line', x1: MARGIN.left, x2: MARGIN.left + PLOT_W,
+        y1: yScale(fvTarget), y2: yScale(fvTarget)
+      }));
+      const lbl = make('text', {
+        x: MARGIN.left + PLOT_W - 4, y: yScale(fvTarget) - 5, 'text-anchor': 'end',
+        style: 'fill: #FAC58C; font-size: 10px; font-family: Inter;'
+      });
+      lbl.textContent = 'FV-Ziel';
+      svg.appendChild(lbl);
+    }
+  }
+
+  svg.appendChild(make('line', {
+    class: 'zero-line', x1: MARGIN.left, x2: MARGIN.left + PLOT_W,
+    y1: yScale(0), y2: yScale(0)
+  }));
+
+  const sortedSeries = [...series].sort((a, b) => {
+    const score = (s) => (s.isSelected ? 3 : 0) + (s.isBest ? 2 : 0) + (s.isWorst ? 2 : 0);
+    return score(a) - score(b);
+  });
+
+  sortedSeries.forEach(s => {
+    const pts = s.values.map((v, i) => v === null || v === undefined ? null : [xScale(i), yScale(v)]).filter(p => p !== null);
+    if (pts.length < 2) return;
+    const path = 'M ' + pts.map(p => p[0] + ',' + p[1]).join(' L ');
+    let stroke, strokeWidth, opacity;
+    if (state.compareMode) {
+      if (s.isSelected) { stroke = '#FAC58C'; strokeWidth = 2.4; opacity = 1; }
+      else if (s.isWorst) { stroke = '#e07070'; strokeWidth = 2; opacity = 1; }
+      else if (s.isBest) { stroke = '#ff9f6a'; strokeWidth = 2; opacity = 1; }
+      else { stroke = 'rgba(204,204,204,0.25)'; strokeWidth = 0.8; opacity = 1; }
+    } else {
+      stroke = s.color; strokeWidth = 2.4; opacity = 1;
+    }
+    svg.appendChild(make('path', {
+      d: path, fill: 'none', stroke, 'stroke-width': strokeWidth,
+      opacity, 'stroke-linejoin': 'round',
+    }));
+  });
+
+  const hoverLine = make('line', {
+    x1: 0, x2: 0, y1: MARGIN.top, y2: MARGIN.top + PLOT_H,
+    stroke: 'rgba(250,197,140,0.5)', 'stroke-width': 1, 'stroke-dasharray': '2,3', opacity: 0,
+  });
+  svg.appendChild(hoverLine);
+
+  const captureRect = make('rect', {
+    x: MARGIN.left, y: MARGIN.top, width: PLOT_W, height: PLOT_H,
+    fill: 'transparent', style: 'cursor: crosshair;',
+  });
+  svg.appendChild(captureRect);
+
+  const tooltip = document.getElementById('tooltip');
+
+  const handleMove = (clientX, clientY) => {
+    const rect = svg.getBoundingClientRect();
+    const scale = CHART_W / rect.width;
+    const svgX = (clientX - rect.left) * scale;
+    if (svgX < MARGIN.left || svgX > MARGIN.left + PLOT_W) {
+      hoverLine.setAttribute('opacity', 0);
+      tooltip.style.opacity = 0;
+      return;
+    }
+    const frac = (svgX - MARGIN.left) / PLOT_W;
+    const idx = Math.max(0, Math.min(xValues.length - 1, Math.round(frac * (xValues.length - 1))));
+    const xpx = xScale(idx);
+    hoverLine.setAttribute('x1', xpx);
+    hoverLine.setAttribute('x2', xpx);
+    hoverLine.setAttribute('opacity', 0.5);
+
+    let html = '';
+    if (state.compareMode) {
+      const items = series
+        .map(s => ({ key: s.key, value: s.values[idx], color: s.isSelected ? '#FAC58C' : s.isWorst ? '#e07070' : s.isBest ? '#ff9f6a' : 'rgba(204,204,204,0.5)' }))
+        .filter(it => it.value !== null && it.value !== undefined);
+      const sorted = [...items].sort((a, b) => b.value - a.value);
+      const top4 = sorted.slice(0, 4);
+      const bottom4 = sorted.slice(-4).reverse();
+      const showDivider = sorted.length > 8;
+      const headerLabel = state.showWithdrawals
+        ? 'ENTNAHME — JAHR ' + xValues[idx]
+        : 'JAHR ' + xValues[idx] + ' DES RUHESTANDS';
+      html = '<div class="tooltip-header">' + headerLabel + '</div>';
+      html += '<div class="tooltip-divider top">Top ' + top4.length + '</div>';
+      top4.forEach(it => {
+        html += '<div class="tooltip-row"><span style="color:' + it.color + '">Start ' + it.key + '</span><span style="font-weight:500">' + fmtMoney(it.value) + '</span></div>';
+      });
+      if (showDivider) {
+        html += '<div class="tooltip-divider bottom">Letzte ' + bottom4.length + '</div>';
+        bottom4.forEach(it => {
+          html += '<div class="tooltip-row"><span style="color:' + it.color + '">Start ' + it.key + '</span><span style="font-weight:500">' + fmtMoney(it.value) + '</span></div>';
+        });
+      }
+    } else {
+      const yr = xValues[idx];
+      const v = series[0].values[idx];
+      html = '<div class="tooltip-header">JAHR ' + yr + '</div>';
+      html += '<div class="tooltip-row big"><span style="color:' + series[0].color + '">' + series[0].key + '</span><span style="font-weight:600">' + fmtFull(v) + '</span></div>';
+      if (sim.path[idx]) {
+        const p = sim.path[idx];
+        if (idx > 0) {
+          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.5)">PMT</span><span>' + fmtFull(p.withdrawal) + '</span></div>';
+          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.5)">Quote</span><span>' + (p.wdRate * 100).toFixed(2).replace('.', ',') + '\u00A0%</span></div>';
+          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.5)">MSCI-Rendite</span><span>' + (p.return >= 0 ? '+' : '') + fmtPct(p.return) + '</span></div>';
+        }
+      }
+    }
+    tooltip.innerHTML = html;
+    tooltip.style.opacity = 1;
+
+    const ttW = tooltip.offsetWidth;
+    const tooltipX = ((xpx / CHART_W) * rect.width);
+    let left = tooltipX + 16;
+    if (left + ttW > rect.width - 8) left = tooltipX - ttW - 16;
+    left = Math.max(8, left);
+    tooltip.style.left = left + 'px';
+    tooltip.style.top = '10px';
+  };
+
+  const handleLeave = () => {
+    hoverLine.setAttribute('opacity', 0);
+    tooltip.style.opacity = 0;
+  };
+
+  captureRect.addEventListener('mousemove', e => handleMove(e.clientX, e.clientY));
+  captureRect.addEventListener('mouseleave', handleLeave);
+  captureRect.addEventListener('touchstart', e => {
+    if (e.touches.length) { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }
+  }, { passive: false });
+  captureRect.addEventListener('touchmove', e => {
+    if (e.touches.length) { e.preventDefault(); handleMove(e.touches[0].clientX, e.touches[0].clientY); }
+  }, { passive: false });
+  captureRect.addEventListener('touchend', handleLeave);
+}
+
+function niceTicks(min, max, count) {
+  const range = max - min;
+  if (range <= 0) return [min];
+  const rough = range / count;
+  const mag = Math.pow(10, Math.floor(Math.log10(rough)));
+  const norm = rough / mag;
+  let step;
+  if (norm < 1.5) step = 1 * mag;
+  else if (norm < 3) step = 2 * mag;
+  else if (norm < 7) step = 5 * mag;
+  else step = 10 * mag;
+  const ticks = [];
+  const start = Math.ceil(min / step) * step;
+  for (let t = start; t <= max; t += step) ticks.push(t);
+  return ticks;
+}
+
+// ============================================================================
+// Table
+// ============================================================================
+function renderTable(sim) {
+  const body = document.getElementById('ledger-body');
+  body.innerHTML = '';
+  sim.path.slice(1).forEach((p, i) => {
+    const tr = document.createElement('tr');
+    if (i % 2 !== 0) tr.className = 'alt';
+    let retClass = '';
+    if (p.return < 0) retClass = 'red';
+    else if (p.return > 0.15) retClass = 'green';
+    const balClass = p.balance === 0 ? 'red' : 'bold';
+    tr.innerHTML =
+      '<td>' + p.year + '</td>' +
+      '<td class="muted">' + p.age + '</td>' +
+      '<td class="r muted">' + fmtFull(p.pvStart) + '</td>' +
+      '<td class="r bold">' + fmtFull(p.withdrawal) + '</td>' +
+      '<td class="r muted">' + (p.wdRate * 100).toFixed(2).replace('.', ',') + '\u00A0%</td>' +
+      '<td class="r ' + retClass + '">' + (p.return >= 0 ? '+' : '') + fmtPct(p.return) + '</td>' +
+      '<td class="r ' + balClass + '">' + fmtFull(p.balance) + '</td>';
+    body.appendChild(tr);
+  });
+}
+
+// ============================================================================
+// Main render
+// ============================================================================
+function render() {
+  document.getElementById('cap-display').textContent = fmtFull(state.initialCapital);
+  document.getElementById('er-display').textContent = state.expectedReturn.toFixed(1).replace('.', ',') + NBSP + '%';
+
+  const fvLabel = state.fvAmount === 0
+    ? '0' + NBSP + '€'
+    : (state.initialCapital > 0
+        ? fmtFull(state.fvAmount) + ' (' + (state.fvAmount / state.initialCapital).toFixed(2).replace('.', ',') + '× Start)'
+        : fmtFull(state.fvAmount));
+  document.getElementById('fv-display').textContent = fvLabel;
+
+  document.getElementById('sy-display').textContent = state.startYear + ' – ' + (state.startYear + state.years);
+  document.getElementById('yr-display').textContent = state.years + ' Jahre';
+  document.getElementById('cohort-label').textContent = state.startYear;
+  document.getElementById('end-year').textContent = state.startYear + state.years;
+  document.getElementById('horizon-label').textContent = state.years;
+
+  renderQuickButtons();
+
+  document.getElementById('mode-single').classList.toggle('active', !state.compareMode);
+  document.getElementById('mode-compare').classList.toggle('active', state.compareMode);
+  document.getElementById('mode-wd').classList.toggle('active', state.showWithdrawals);
+  document.getElementById('mode-wd').textContent = state.showWithdrawals ? 'Bestand' : 'Entnahmen';
+
+  const fvTarget = state.fvAmount;
+  const sim = simulate(state.startYear, state.years, state.initialCapital, state.expectedReturn, fvTarget);
+  const allWindows = getAllWindows();
+
+  const sortedByFinal = [...allWindows].sort((a, b) => a.finalBalance - b.finalBalance);
+  const median = sortedByFinal[Math.floor(sortedByFinal.length / 2)].finalBalance;
+  const worst = sortedByFinal[0];
+  const best = sortedByFinal[sortedByFinal.length - 1];
+  const hitTargetCount = allWindows.filter(w => w.hitTarget).length;
+
+  document.getElementById('window-count').textContent = allWindows.length;
+
+  const tv = document.getElementById('terminal-value');
+  tv.textContent = fmtFull(sim.finalBalance);
+  tv.className = 'big-stat-value' + (sim.finalBalance >= fvTarget ? '' : ' ruined');
+  document.getElementById('terminal-sub').textContent =
+    fvTarget > 0
+      ? (sim.finalBalance >= fvTarget
+          ? 'Ziel erreicht (' + (sim.finalBalance / state.initialCapital).toFixed(2).replace('.', ',') + '× Start)'
+          : 'Ziel verfehlt um ' + fmtMoney(fvTarget - sim.finalBalance))
+      : 'Vielfaches des Anfangskapitals: ' + (sim.finalBalance / state.initialCapital).toFixed(2).replace('.', ',') + '×';
+
+  document.getElementById('total-withdrawn').textContent = fmtMoney(sim.totalWithdrawn);
+  document.getElementById('total-sub').textContent = (sim.totalWithdrawn / state.initialCapital).toFixed(2).replace('.', ',') + '× Start';
+  document.getElementById('avg-wd-rate').textContent = (sim.avgWdRate * 100).toFixed(2).replace('.', ',') + NBSP + '%';
+  document.getElementById('min-wd').textContent = fmtMoney(sim.minWd);
+  document.getElementById('min-wd-yr').textContent = 'im Jahr ' + sim.minWdYear;
+  document.getElementById('max-wd').textContent = fmtMoney(sim.maxWd);
+  document.getElementById('max-wd-yr').textContent = 'im Jahr ' + sim.maxWdYear;
+
+  document.getElementById('median-final').textContent = fmtMoney(median);
+  document.getElementById('median-sub').textContent = (median / state.initialCapital).toFixed(2).replace('.', ',') + '× Start';
+  document.getElementById('hit-target').textContent = hitTargetCount + '/' + allWindows.length;
+  document.getElementById('hit-sub').textContent = fvTarget > 0 ? '≥ ' + fmtMoney(fvTarget) : 'alle (Ziel = 0)';
+  document.getElementById('worst-year').textContent = worst.startYear;
+  document.getElementById('worst-sub').textContent = fmtMoney(worst.finalBalance);
+  document.getElementById('best-year').textContent = best.startYear;
+  document.getElementById('best-sub').textContent = fmtMoney(best.finalBalance);
+
+  renderChart(sim, allWindows, worst, best);
+
+  const caption = document.getElementById('chart-caption');
+  if (state.compareMode) {
+    const what = state.showWithdrawals ? 'Jährliche Entnahme (PMT)' : 'Portfoliobestand';
+    caption.innerHTML = what + ' über alle ' + state.years + '-Jahres-Zeitfenster. ' +
+      '<span style="color:#FAC58C;font-weight:600">Ausgewählter Jahrgang (' + state.startYear + ')</span> in Grün; ' +
+      '<span style="color:#b8442e;font-weight:600">bester Endwert</span> in Rot; ' +
+      '<span style="color:#8a3522;font-weight:600">schlechtester Endwert</span> in Dunkelrot.' +
+      (state.showWithdrawals ? '' : ' Gestrichelte grüne Linie: FV-Ziel.');
+  } else {
+    caption.innerHTML = state.showWithdrawals
+      ? 'Jährliche Entnahme (PMT), in jedem Jahr neu berechnet aus aktuellem PV, verbleibendem n, erwartetem r=' + state.expectedReturn.toString().replace('.', ',') + '\u00A0% und FV-Ziel. Die Linie zeigt, wie sich das Einkommen in diesem historischen Zeitfenster entwickelt hätte.'
+      : 'Portfoliobestand bei dynamischer PMT-Entnahme. Gestrichelt grau: Anfangskapital. Gestrichelt grün: FV-Ziel.';
+  }
+
+  document.getElementById('table-section').style.display = state.compareMode ? 'none' : 'block';
+  if (!state.compareMode) renderTable(sim);
+}
+
+// ============================================================================
+// Init
+// ============================================================================
+function init() {
+  document.getElementById('cap-range').addEventListener('input', e => { state.initialCapital = +e.target.value; render(); });
+  document.getElementById('er-range').addEventListener('input', e => { state.expectedReturn = +e.target.value; render(); });
+  document.getElementById('sy-range').addEventListener('input', e => { state.startYear = +e.target.value; render(); });
+  document.getElementById('mode-single').addEventListener('click', () => { state.compareMode = false; render(); });
+  document.getElementById('mode-compare').addEventListener('click', () => { state.compareMode = true; render(); });
+  document.getElementById('mode-wd').addEventListener('click', () => { state.showWithdrawals = !state.showWithdrawals; render(); });
+
+  const fvInput = document.getElementById('fv-input');
+  fvInput.value = formatNumberInput(state.fvAmount);
+  fvInput.addEventListener('input', e => {
+    const parsed = parseNumberInput(e.target.value);
+    if (parsed === null) {
+      e.target.classList.add('invalid');
+      return;
+    }
+    e.target.classList.remove('invalid');
+    state.fvAmount = parsed;
+    render();
+  });
+  fvInput.addEventListener('blur', e => {
+    const parsed = parseNumberInput(e.target.value);
+    if (parsed === null) {
+      e.target.value = formatNumberInput(state.fvAmount);
+      e.target.classList.remove('invalid');
+    } else {
+      e.target.value = formatNumberInput(parsed);
+    }
+  });
+  fvInput.addEventListener('focus', e => {
+    setTimeout(() => e.target.select(), 0);
+  });
+
+  document.getElementById('sy-range').max = LAST_YEAR - state.years + 1;
+
+  let resizeTimer;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(render, 150);
+  });
+
+  render();
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
