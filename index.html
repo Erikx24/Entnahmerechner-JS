@@ -9,12 +9,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Erode:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
+  html, body { margin: 0; padding: 0; background: transparent; }
   body {
     font-family: 'Inter', sans-serif;
-    color: #FAFAFA;
+    color: #CCCCCC;
     background: transparent;
-    background-image: radial-gradient(circle at 20% 30%, rgba(250,197,140,0.04) 0%, transparent 60%), radial-gradient(circle at 80% 70%, rgba(250,197,140,0.02) 0%, transparent 60%);
     padding: 32px 20px 60px;
     min-height: 100vh;
     -webkit-text-size-adjust: 100%;
@@ -24,14 +23,14 @@
   .masthead { margin-bottom: 36px; }
   .masthead-top {
     display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
-    font-size: 10px; letter-spacing: 0.18em; color: rgba(204,204,204,0.5);
+    font-size: 10px; letter-spacing: 0.18em; color: rgba(204,204,204,0.9);
     font-family: 'IBM Plex Mono', monospace; text-transform: uppercase;
     padding-bottom: 14px; border-bottom: 1px solid rgba(250,197,140,0.2); margin-bottom: 24px;
   }
   h1.title {
     font-family: 'Erode', serif;
-    font-size: clamp(30px, 4.5vw, 56px);
-    font-weight: 400; line-height: 1.0; letter-spacing: -0.02em; margin: 0 0 18px;
+    font-size: clamp(36px, 6.5vw, 78px);
+    font-weight: 600; line-height: 1.0; letter-spacing: -0.02em; margin: 0 0 18px;
   }
   h1.title em { font-style: italic; color: #FAC58C; }
   .subtitle {
@@ -180,7 +179,7 @@
   .big-stat { margin-bottom: 24px; }
   .big-stat-label {
     font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: rgba(204,204,204,0.5); margin-bottom: 8px;
+    color: rgba(204,204,204,0.9); margin-bottom: 8px;
   }
   .big-stat-value {
     font-family: 'Erode', serif;
@@ -196,7 +195,7 @@
   .stat-cell { padding-top: 12px; border-top: 1px solid rgba(250,197,140,0.15); }
   .stat-label {
     font-size: 9px; letter-spacing: 0.18em; text-transform: uppercase;
-    color: rgba(204,204,204,0.5); margin-bottom: 6px;
+    color: rgba(204,204,204,0.9); margin-bottom: 6px;
   }
   .stat-value {
     font-family: 'IBM Plex Mono', monospace;
@@ -227,11 +226,11 @@
   }
 
   svg.chart { display: block; width: 100%; height: auto; user-select: none; }
-  svg.chart text { font-family: 'IBM Plex Mono', monospace; font-size: 11px; fill: rgba(204,204,204,0.5); }
+  svg.chart text { font-family: 'IBM Plex Mono', monospace; font-size: 11px; fill: rgba(204,204,204,0.9); }
   svg.chart .axis-line { stroke: rgba(250,197,140,0.2); stroke-width: 1; }
   svg.chart .grid-line { stroke: rgba(255,255,255,0.07); stroke-width: 1; }
   svg.chart .zero-line { stroke: rgba(224,85,85,0.5); stroke-width: 1; }
-  svg.chart .ref-line { stroke: rgba(204,204,204,0.3); stroke-width: 1; stroke-dasharray: 3,3; }
+  svg.chart .ref-line { stroke: rgba(204,204,204,0.45); stroke-width: 1; stroke-dasharray: 3,3; }
   svg.chart .target-line { stroke: #FAC58C; stroke-width: 1.2; stroke-dasharray: 5,4; }
   svg.chart .ref-label { font-size: 10px; fill: #6b6557; font-family: 'Inter'; }
 
@@ -244,7 +243,7 @@
   }
   .tooltip-header {
     font-family: 'IBM Plex Mono', monospace;
-    font-size: 11px; letter-spacing: 0.05em; color: rgba(204,204,204,0.6); margin-bottom: 6px;
+    font-size: 11px; letter-spacing: 0.05em; color: rgba(204,204,204,0.92); margin-bottom: 6px;
   }
   .tooltip-row {
     display: flex; justify-content: space-between; gap: 18px;
@@ -274,14 +273,14 @@
     text-align: left; padding: 10px 12px;
     font-family: 'Inter', sans-serif;
     font-size: 10px; font-weight: 500; letter-spacing: 0.15em;
-    text-transform: uppercase; color: rgba(204,204,204,0.5);
-    position: sticky; top: 0; background: #0E1F30; z-index: 1;
+    text-transform: uppercase; color: rgba(204,204,204,0.9);
+    position: sticky; top: 0; background: transparent; z-index: 1;
   }
   table.ledger th.r, table.ledger td.r { text-align: right; }
   table.ledger tbody tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
   table.ledger tbody tr.alt { background: rgba(255,255,255,0.03); }
   table.ledger td { padding: 8px 12px; }
-  td.muted { color: rgba(204,204,204,0.5); }
+  td.muted { color: rgba(204,204,204,0.9); }
   td.bold { font-weight: 500; }
   td.red { color: #e07070; }
   td.green { color: #FAC58C; }
@@ -846,7 +845,7 @@ function renderChart(sim, allWindows, worstWindow, bestWindow) {
       if (s.isSelected) { stroke = '#FAC58C'; strokeWidth = 2.4; opacity = 1; }
       else if (s.isWorst) { stroke = '#e07070'; strokeWidth = 2; opacity = 1; }
       else if (s.isBest) { stroke = '#ff9f6a'; strokeWidth = 2; opacity = 1; }
-      else { stroke = 'rgba(204,204,204,0.25)'; strokeWidth = 0.8; opacity = 1; }
+      else { stroke = 'rgba(204,204,204,0.35)'; strokeWidth = 0.8; opacity = 1; }
     } else {
       stroke = s.color; strokeWidth = 2.4; opacity = 1;
     }
@@ -889,7 +888,7 @@ function renderChart(sim, allWindows, worstWindow, bestWindow) {
     let html = '';
     if (state.compareMode) {
       const items = series
-        .map(s => ({ key: s.key, value: s.values[idx], color: s.isSelected ? '#FAC58C' : s.isWorst ? '#e07070' : s.isBest ? '#ff9f6a' : 'rgba(204,204,204,0.5)' }))
+        .map(s => ({ key: s.key, value: s.values[idx], color: s.isSelected ? '#FAC58C' : s.isWorst ? '#e07070' : s.isBest ? '#ff9f6a' : 'rgba(204,204,204,0.9)' }))
         .filter(it => it.value !== null && it.value !== undefined);
       const sorted = [...items].sort((a, b) => b.value - a.value);
       const top4 = sorted.slice(0, 4);
@@ -917,9 +916,9 @@ function renderChart(sim, allWindows, worstWindow, bestWindow) {
       if (sim.path[idx]) {
         const p = sim.path[idx];
         if (idx > 0) {
-          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.5)">PMT</span><span>' + fmtFull(p.withdrawal) + '</span></div>';
-          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.5)">Quote</span><span>' + (p.wdRate * 100).toFixed(2).replace('.', ',') + '\u00A0%</span></div>';
-          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.5)">MSCI-Rendite</span><span>' + (p.return >= 0 ? '+' : '') + fmtPct(p.return) + '</span></div>';
+          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.9)">PMT</span><span>' + fmtFull(p.withdrawal) + '</span></div>';
+          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.9)">Quote</span><span>' + (p.wdRate * 100).toFixed(2).replace('.', ',') + '\u00A0%</span></div>';
+          html += '<div class="tooltip-row"><span style="color:rgba(204,204,204,0.9)">MSCI-Rendite</span><span>' + (p.return >= 0 ? '+' : '') + fmtPct(p.return) + '</span></div>';
         }
       }
     }
